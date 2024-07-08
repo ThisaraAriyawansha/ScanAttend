@@ -25,22 +25,33 @@
     color: #6c757d; /* Medium gray text color */
   }
   
-  .loading-progress {
-    width: 50%; /* Initial width of the progress bar */
-    margin-top: 20px; /* Space above the progress bar */
-    transition: width 0.3s ease-in-out; /* Smooth transition for width changes */
-  }
-  
-  .loading-progress.animate {
-    width: 100%; /* Fully filled width when animation is done */
-  }
-  
-  .loading-progress .progress-bar {
-    background-color: #28a745; /* Green color for progress bar */
-  }
-  
   .loading-button {
     font-size: 1.2rem; /* Button font size */
     padding: 10px 20px; /* Padding inside the button */
+  }
+  
+  .loading-animation {
+    margin-top: 20px; /* Space above the animation */
+    width: 50%; /* Width of the progress bar container */
+  }
+  
+  .loading-progress {
+    width: 100%; /* Width of the progress bar */
+    height: 20px; /* Height of the progress bar */
+    background-color: #e9ecef; /* Light background color for progress bar */
+    border-radius: 4px; /* Rounded corners for progress bar */
+    overflow: hidden; /* Ensure progress bar is contained within its container */
+  }
+  
+  .progress-bar {
+    height: 100%; /* Full height of the progress bar */
+    background-color: #28a745; /* Green color for progress bar */
+    transition: width 1s ease-in-out; /* Smooth transition for width changes */
+  }
+  
+  .loading-text {
+    font-size: 1.2rem; /* Text size */
+    margin-top: 10px; /* Space above text */
+    color: #343a40; /* Dark text color */
   }
   

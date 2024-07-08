@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, ProgressBar, Container } from 'react-bootstrap';
+import { Button, Container } from 'react-bootstrap';
 import logo from './image/qr.jpg'; // Adjust the path to your logo
 import './Loading.css'; // Assuming you have custom styles here
 
@@ -9,16 +9,20 @@ const LoadingScreen = ({ onComplete }) => {
 
   const startLoading = () => {
     setIsLoading(true); // Start loading animation
-    const interval = setInterval(() => {
+    simulateProgress();
+  };
+
+  const simulateProgress = () => {
+    let interval = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(interval);
           onComplete(); // Call onComplete when animation is complete
           return 100;
         }
-        return prev + 10; // Increment progress
+        return prev + 2; // Increment progress more gradually
       });
-    }, 300); // Adjust the speed as needed
+    }, 50); // Adjust the interval for smoother animation
   };
 
   return (
@@ -28,7 +32,12 @@ const LoadingScreen = ({ onComplete }) => {
       <p className="loading-description">Streamlining attendance management with QR code technology.</p>
       <Button onClick={startLoading} className="loading-button">Let's Start</Button>
       {isLoading && (
-        <ProgressBar now={progress} className="loading-progress" variant="success" />
+        <div className="loading-animation">
+          {/* Replace with your custom progress bar animation */}
+          <div className="loading-progress">
+            <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+          </div>
+        </div>
       )}
     </Container>
   );
