@@ -18,7 +18,7 @@ ScanAttend is a web application designed to simplify attendance management using
 - Database: MongoDB
 - Authentication: JWT (JSON Web Tokens)
 - QR Code Libraries: `qrcode.react`, `react-qr-reader`
-- Styling: styled-components, CSS/SCSS
+- Styling: styled-components, CSS
 
 ## Installation
 
