@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, ProgressBar, Container } from 'react-bootstrap';
-import logo from '../path/to/logo.png'; // Adjust the path to your logo
-import './LoadingScreen.css';
+import logo from './image/qr.jpg'; // Adjust the path to your logo
+import './Loading.css';
 
 const LoadingScreen = ({ onComplete }) => {
   const [progress, setProgress] = useState(0);
