@@ -27,7 +27,7 @@
   
   .loading-progress {
     width: 50%; /* Initial width of the progress bar */
-    margin-bottom: 20px; /* Space below the progress bar */
+    margin-top: 20px; /* Space above the progress bar */
     transition: width 0.3s ease-in-out; /* Smooth transition for width changes */
   }
   
