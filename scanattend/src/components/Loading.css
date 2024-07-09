@@ -37,7 +37,7 @@
   
   .loading-progress {
     width: 100%; /* Width of the progress bar */
-    height: 20px; /* Height of the progress bar */
+    height: 10px; /* Height of the progress bar */
     background-color: #e9ecef; /* Light background color for progress bar */
     border-radius: 4px; /* Rounded corners for progress bar */
     overflow: hidden; /* Ensure progress bar is contained within its container */
@@ -54,4 +54,3 @@
     margin-top: 10px; /* Space above text */
     color: #343a40; /* Dark text color */
   }
-  
