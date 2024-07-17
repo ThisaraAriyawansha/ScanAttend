@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoadingScreen from './components/Loading'; // Adjust the path as per your project structure
 import Login from './components/Login'; // Adjust the path as per your project structure
+import Dashboard from './components/Dashboard';
 
 // Placeholder MainContent component
 const MainContent = () => {
@@ -37,6 +38,8 @@ function App() {
         <Routes>
           <Route path="/" element={isLoading ? <LoadingScreen onComplete={handleLoadingComplete} /> : isLoggedIn ? <MainContent /> : <Navigate to="/login" />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+
           {/* Add more routes as needed */}
         </Routes>
       </div>
