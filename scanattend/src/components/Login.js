@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import './LoginPage.css';
 import loginImage from './image/login.jpg';
 import axios from 'axios';
+import { useHistory } from 'react-router-dom';
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ email: '', password: '', confirmPassword: '' });
+  const history = useHistory();
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
@@ -20,18 +22,17 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isLogin) {
-      // Login request
       try {
         const response = await axios.post('http://localhost:5000/api/users/login', {
           email: formData.email,
           password: formData.password,
         });
         alert(response.data);
+        history.push('/dashboard'); // Redirect to dashboard after successful login
       } catch (err) {
         alert('Error logging in');
       }
     } else {
-      // Register request
       if (formData.password !== formData.confirmPassword) {
         alert('Passwords do not match');
         return;
@@ -42,7 +43,7 @@ const LoginPage = () => {
           password: formData.password,
         });
         alert(response.data);
-        toggleForm(); // Switch to login after successful registration
+        toggleForm(); // Switch to login form after successful registration
       } catch (err) {
         alert('Error registering');
       }
