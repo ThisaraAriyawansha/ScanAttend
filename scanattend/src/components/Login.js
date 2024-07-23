@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import './LoginPage.css';
 import loginImage from './image/login.jpg';
 import axios from 'axios';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ email: '', password: '', confirmPassword: '' });
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
@@ -28,7 +28,7 @@ const LoginPage = () => {
           password: formData.password,
         });
         alert(response.data);
-        history.push('/dashboard'); // Redirect to dashboard after successful login
+        navigate('/dashboard'); // Redirect to dashboard after successful login
       } catch (err) {
         alert('Error logging in');
       }
