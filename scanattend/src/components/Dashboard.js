@@ -1,9 +1,7 @@
 import React from 'react';
 import { Link, Routes, Route } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Home from './Home';
-import RegisterStudent from './RegisterStudent';
-import StudentList from './StudentList';
+import './DashboardUI.css'; // Import your CSS file
 
 const DashboardUI = () => {
   return (
@@ -18,8 +16,8 @@ const DashboardUI = () => {
         <div className="logo">Your App Logo</div>
         <ul className="sidebar-nav">
           <li><Link to="/">Home</Link></li>
-          <li><Link to="/register-student">Register Student</Link></li>
-          <li><Link to="/student-list">View Students</Link></li>
+          <li><Link to="/profile">Profile</Link></li>
+          <li><Link to="/settings">Settings</Link></li>
         </ul>
       </motion.div>
 
@@ -27,10 +25,40 @@ const DashboardUI = () => {
       <div className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/register-student" element={<RegisterStudent />} />
-          <Route path="/student-list" element={<StudentList />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
       </div>
+    </div>
+  );
+};
+
+// Home component
+const Home = () => {
+  return (
+    <div className="home">
+      <h2>Welcome to Your Dashboard</h2>
+      {/* Add more content as needed */}
+    </div>
+  );
+};
+
+// Profile component
+const Profile = () => {
+  return (
+    <div className="profile">
+      <h2>Profile Page</h2>
+      {/* Add more content as needed */}
+    </div>
+  );
+};
+
+// Settings component
+const Settings = () => {
+  return (
+    <div className="settings">
+      <h2>Settings Page</h2>
+      {/* Add more content as needed */}
     </div>
   );
 };
