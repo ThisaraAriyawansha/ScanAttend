@@ -1,40 +1,38 @@
-// Dashboard.js
 import React from 'react';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { Link, Routes, Route } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import Home from './Home';
+import RegisterStudent from './RegisterStudent';
+import StudentList from './StudentList';
 
 const DashboardUI = () => {
   return (
-    <Router>
-      <div className="dashboard">
-        {/* Sidebar */}
-        <div className="sidebar">
-          <div className="logo">Your App Logo</div>
-          <ul className="sidebar-nav">
-            <li><Link to="/">Home</Link></li>
-            {/* Add more sidebar links */}
-          </ul>
-        </div>
+    <div className="dashboard">
+      {/* Sidebar */}
+      <motion.div 
+        className="sidebar" 
+        initial={{ x: -200 }} 
+        animate={{ x: 0 }} 
+        transition={{ duration: 0.5 }}
+      >
+        <div className="logo">Your App Logo</div>
+        <ul className="sidebar-nav">
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/register-student">Register Student</Link></li>
+          <li><Link to="/student-list">View Students</Link></li>
+        </ul>
+      </motion.div>
 
-        {/* Main Content */}
-        <div className="main-content">
-          <Route path="/" exact component={Home} />
-          {/* Add more routes for other dashboard pages */}
-        </div>
+      {/* Main Content */}
+      <div className="main-content">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/register-student" element={<RegisterStudent />} />
+          <Route path="/student-list" element={<StudentList />} />
+        </Routes>
       </div>
-    </Router>
-  );
-};
-
-// Home component
-const Home = () => {
-  return (
-    <div className="home">
-      <h2>Welcome to Your Dashboard</h2>
-      {/* Add more content as needed */}
     </div>
   );
 };
 
 export default DashboardUI;
-
-// DashboardUI.css
