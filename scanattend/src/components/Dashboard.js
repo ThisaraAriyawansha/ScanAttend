@@ -13,52 +13,71 @@ const DashboardUI = () => {
         animate={{ x: 0 }} 
         transition={{ duration: 0.5 }}
       >
-        <div className="logo">Your App Logo</div>
+        <div className="logo">Dashboard</div>
         <ul className="sidebar-nav">
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/profile">Profile</Link></li>
-          <li><Link to="/settings">Settings</Link></li>
+          <li><Link to="/register">Register Student</Link></li>
+          <li><Link to="/view">View Students</Link></li>
+          <li><Link to="/qr">QR Code</Link></li>
         </ul>
       </motion.div>
 
       {/* Main Content */}
       <div className="main-content">
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/register" element={<RegisterStudent />} />
+          <Route path="/view" element={<ViewStudents />} />
+          <Route path="/qr" element={<QRCode />} />
         </Routes>
       </div>
     </div>
   );
 };
 
-// Home component
-const Home = () => {
+// Register Student component
+const RegisterStudent = () => {
+  const handleRegister = (event) => {
+    event.preventDefault();
+    // Handle student registration logic
+  };
+
   return (
-    <div className="home">
-      <h2>Welcome to Your Dashboard</h2>
-      {/* Add more content as needed */}
+    <div className="register-student">
+      <h2>Register Student</h2>
+      <form onSubmit={handleRegister}>
+        <div>
+          <label>Name:</label>
+          <input type="text" name="name" required />
+        </div>
+        <div>
+          <label>Age:</label>
+          <input type="number" name="age" required />
+        </div>
+        <div>
+          <label>Class:</label>
+          <input type="text" name="class" required />
+        </div>
+        <button type="submit">Register</button>
+      </form>
     </div>
   );
 };
 
-// Profile component
-const Profile = () => {
+// View Students component
+const ViewStudents = () => {
   return (
-    <div className="profile">
-      <h2>Profile Page</h2>
-      {/* Add more content as needed */}
+    <div className="view-students">
+      <h2>View Students</h2>
+      {/* Add logic to fetch and display students */}
     </div>
   );
 };
 
-// Settings component
-const Settings = () => {
+// QR Code component
+const QRCode = () => {
   return (
-    <div className="settings">
-      <h2>Settings Page</h2>
-      {/* Add more content as needed */}
+    <div className="qr-code">
+      <h2>QR Code</h2>
+      {/* Add logic to handle QR Code functionality */}
     </div>
   );
 };
