@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import QRCode from 'qrcode.react';
 import './DashboardUI.css';
@@ -9,21 +9,41 @@ const DashboardUI = () => {
   const [birthday, setBirthday] = useState('');
   const [grade, setGrade] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [gender, setGender] = useState(''); // Added gender state
+  const [gender, setGender] = useState('');
+  const [profilePic, setProfilePic] = useState('https://via.placeholder.com/100');
   const [qrCodeData, setQrCodeData] = useState(null);
+  const [students, setStudents] = useState([]);
   const qrRef = useRef(null);
+
+  const [showMessage, setShowMessage] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (selectedSection === 'StudentAttendanceView') {
+      fetchStudents();
+    }
+  }, [selectedSection]);
+
+  const fetchStudents = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/students');
+      if (response.ok) {
+        const data = await response.json();
+        setStudents(data);
+      } else {
+        console.error('Failed to fetch students');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  };
+
+  // Generate QR code using student's full name
   const handleGenerateQR = () => {
-    const data = {
-      name: studentName,
-      birthday,
-      grade,
-      phoneNumber,
-      gender, // Include gender in QR code data
-    };
-    setQrCodeData(JSON.stringify(data));
+    setQrCodeData(studentName); // Use only the student's full name for QR code
   };
 
   const handleDownloadQR = () => {
@@ -39,9 +59,64 @@ const DashboardUI = () => {
     document.body.removeChild(downloadLink);
   };
 
-  const handleRegistration = () => {
-    // Implement registration logic here
-    console.log('Registration button clicked');
+  const handleRegistration = async () => {
+    const data = {
+      studentName,
+      birthday,
+      grade,
+      phoneNumber,
+      gender,
+      profilePic,
+      qrCodeData,
+      attendanceCount: 0,
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/api/students/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        setMessage('Registration successful');
+        setMessageType('success');
+        resetForm();
+      } else {
+        setMessage('Failed to register. Please try again.');
+        setMessageType('error');
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage('An error occurred. Please try again later.');
+      setMessageType('error');
+    } finally {
+      setShowMessage(true);
+    }
+  };
+
+  // Function to reset form fields
+  const resetForm = () => {
+    setStudentName('');
+    setBirthday('');
+    setGrade('');
+    setPhoneNumber('');
+    setGender('');
+    setProfilePic('https://via.placeholder.com/100');
+    setQrCodeData(null);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePic(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const renderContent = () => {
@@ -52,8 +127,19 @@ const DashboardUI = () => {
             <div className="form-and-qr">
               <form className="modern-form" onSubmit={(e) => e.preventDefault()}>
                 <h2>Student Registration</h2>
+                <div className="profile-pic-top">
+                  <p className="upload-message">Upload a clear picture:</p>
+                  <div className="profile-pic">
+                    <img
+                      src={profilePic}
+                      alt="Profile"
+                      className="profile-pic-img"
+                    />
+                  </div>
+                  <input type="file" accept="image/*" onChange={handleFileChange} />
+                </div>
                 <div className="form-group">
-                  <label>Student Name:</label>
+                  <label>Student Full Name:</label>
                   <input
                     type="text"
                     value={studentName}
@@ -69,19 +155,7 @@ const DashboardUI = () => {
                     <option value="">Select Gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
-                    <option value="Other">Other</option>
                   </select>
-                </div>
-                <div className="form-group">
-                  <label>Photo:</label>
-                  <input type="file" accept="image/*" />
-                  <div className="profile-pic">
-                    <img
-                      src="https://via.placeholder.com/100"
-                      alt="Profile"
-                      className="profile-pic-img"
-                    />
-                  </div>
                 </div>
                 <div className="form-group">
                   <label>Birthday:</label>
@@ -100,7 +174,7 @@ const DashboardUI = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Phone Number:</label>
+                  <label>Parent's Phone Number:</label>
                   <input
                     type="tel"
                     value={phoneNumber}
@@ -129,7 +203,31 @@ const DashboardUI = () => {
             </div>
           </div>
         );
-      // Add other sections like StudentAttendanceMark and StudentAttendanceView here
+
+      case 'StudentAttendanceView':
+        return (
+          <div className="attendance-view">
+            <h2>Student Attendance View</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Attendance Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                {students.map((student) => (
+                  <tr key={student._id}>
+                    <td>{student.studentName}</td>
+                    <td>{student.attendanceCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+
+      // Add other sections like StudentAttendanceMark here
       default:
         return null;
     }
@@ -156,6 +254,26 @@ const DashboardUI = () => {
           </button>
         </div>
         <div className="content">{renderContent()}</div>
+      </div>
+      <MessageModal
+        show={showMessage}
+        message={message}
+        onClose={() => setShowMessage(false)}
+        type={messageType}
+      />
+    </div>
+  );
+};
+
+// Modal Component for displaying messages
+const MessageModal = ({ show, message, onClose, type }) => {
+  if (!show) return null;
+
+  return (
+    <div className={`modal ${type}`}>
+      <div className="modal-content">
+        <p>{message}</p>
+        <button onClick={onClose} className="btn-close">Close</button>
       </div>
     </div>
   );

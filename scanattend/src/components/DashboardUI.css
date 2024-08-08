@@ -180,3 +180,90 @@ input[type="file"] {
 .form-group select {
   margin-top: 5px;
 }
+.profile-pic-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.upload-message {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.profile-pic {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.profile-pic-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+input[type="file"] {
+  margin-top: 10px;
+}
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 300px;
+  text-align: center;
+}
+
+.modal-content {
+  margin-bottom: 20px;
+}
+
+.btn-close {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal.success .btn-close {
+  background-color: #28a745;
+}
+
+.modal.error .btn-close {
+  background-color: #dc3545;
+}
+
+
+
+.attendance-view {
+  padding: 20px;
+}
+
+.attendance-view table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.attendance-view th, .attendance-view td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.attendance-view th {
+  background-color: #f2f2f2;
+}
+
+

@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -80,6 +79,48 @@ app.post('/api/users/login', async (req, res) => {
     res.status(500).send('Error logging in user');
   }
 });
+
+
+const studentSchema = new mongoose.Schema({
+  studentName: { type: String, required: true },
+  birthday: { type: Date, required: true },
+  grade: { type: String, required: true },
+  phoneNumber: { type: String, required: true },
+  gender: { type: String, required: true },
+  profilePic: { type: String, required: true },
+  qrCodeData: { type: String, required: true },
+  attendanceCount: { type: Number, default: 0 },  // New field
+});
+
+const Student = mongoose.model('Student', studentSchema);
+
+module.exports = Student;
+
+
+// Register a new student
+app.post('/api/students/register', async (req, res) => {
+  try {
+    const { studentName, birthday, grade, phoneNumber, gender, profilePic, qrCodeData } = req.body;
+    const student = new Student({ studentName, birthday, grade, phoneNumber, gender, profilePic, qrCodeData });
+    await student.save();
+    res.status(201).send('Student registered successfully');
+  } catch (err) {
+    res.status(500).send('Error registering student');
+  }
+});
+
+
+// Get all students with their attendance count
+app.get('/api/students', async (req, res) => {
+  try {
+    const students = await Student.find({}, 'studentName attendanceCount'); // Fetch studentName and attendanceCount only
+    res.status(200).json(students);
+  } catch (err) {
+    res.status(500).send('Error fetching student data');
+  }
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
