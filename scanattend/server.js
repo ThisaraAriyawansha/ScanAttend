@@ -110,15 +110,22 @@ app.post('/api/students/register', async (req, res) => {
 });
 
 
-// Get all students with their attendance count
-app.get('/api/students', async (req, res) => {
+// Update student's attendance count
+app.put('/api/students/:id', async (req, res) => {
   try {
-    const students = await Student.find({}, 'studentName attendanceCount'); // Fetch studentName and attendanceCount only
-    res.status(200).json(students);
+    const { id } = req.params;
+    const { attendanceCount } = req.body;
+
+    const student = await Student.findByIdAndUpdate(id, { attendanceCount }, { new: true });
+    if (!student) {
+      return res.status(404).send('Student not found');
+    }
+    res.status(200).send('Attendance updated successfully');
   } catch (err) {
-    res.status(500).send('Error fetching student data');
+    res.status(500).send('Error updating attendance');
   }
 });
+
 
 
 

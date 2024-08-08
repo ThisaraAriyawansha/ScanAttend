@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import QRCode from 'qrcode.react';
+import { QrReader } from 'react-qr-reader';
 import './DashboardUI.css';
 
 const DashboardUI = () => {
@@ -13,6 +14,7 @@ const DashboardUI = () => {
   const [profilePic, setProfilePic] = useState('https://via.placeholder.com/100');
   const [qrCodeData, setQrCodeData] = useState(null);
   const [students, setStudents] = useState([]);
+  const [scanning, setScanning] = useState(false);
   const qrRef = useRef(null);
 
   const [showMessage, setShowMessage] = useState(false);
@@ -24,6 +26,8 @@ const DashboardUI = () => {
   useEffect(() => {
     if (selectedSection === 'StudentAttendanceView') {
       fetchStudents();
+    } else if (selectedSection === 'StudentAttendanceMark') {
+      setScanning(true);
     }
   }, [selectedSection]);
 
@@ -41,9 +45,8 @@ const DashboardUI = () => {
     }
   };
 
-  // Generate QR code using student's full name
   const handleGenerateQR = () => {
-    setQrCodeData(studentName); // Use only the student's full name for QR code
+    setQrCodeData(studentName);
   };
 
   const handleDownloadQR = () => {
@@ -89,7 +92,7 @@ const DashboardUI = () => {
         setMessageType('error');
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error:', err);
       setMessage('An error occurred. Please try again later.');
       setMessageType('error');
     } finally {
@@ -97,7 +100,6 @@ const DashboardUI = () => {
     }
   };
 
-  // Function to reset form fields
   const resetForm = () => {
     setStudentName('');
     setBirthday('');
@@ -117,6 +119,49 @@ const DashboardUI = () => {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleScan = async (data) => {
+    if (data) {
+      setScanning(false);
+      console.log('Scanned Data:', data); // Log the scanned data
+      try {
+        const student = students.find(s => s.studentName === data);
+        if (student) {
+          const response = await fetch(`http://localhost:5000/api/students/${student._id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ attendanceCount: student.attendanceCount + 1 }),
+          });
+
+          if (response.ok) {
+            setMessage('Attendance marked successfully');
+            setMessageType('success');
+          } else {
+            setMessage('Failed to mark attendance. Please try again.');
+            setMessageType('error');
+          }
+        } else {
+          setMessage('Student not found.');
+          setMessageType('error');
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        setMessage('An error occurred. Please try again later.');
+        setMessageType('error');
+      } finally {
+        setShowMessage(true);
+      }
+    }
+  };
+
+  const handleError = (error) => {
+    console.error('Error:', error);
+    setMessage('An error occurred. Please try again later.');
+    setMessageType('error');
+    setShowMessage(true);
   };
 
   const renderContent = () => {
@@ -203,77 +248,76 @@ const DashboardUI = () => {
             </div>
           </div>
         );
-
-      case 'StudentAttendanceView':
+      case 'StudentAttendanceMark':
         return (
-          <div className="attendance-view">
-            <h2>Student Attendance View</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Student Name</th>
-                  <th>Attendance Count</th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.map((student) => (
-                  <tr key={student._id}>
-                    <td>{student.studentName}</td>
-                    <td>{student.attendanceCount}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="attendance-marking-container">
+            {scanning && (
+              <QrReader
+                onScan={handleScan}
+                onError={handleError}
+                style={{ width: '100%' }}
+                facingMode="environment"
+              />
+            )}
           </div>
         );
-
-      // Add other sections like StudentAttendanceMark here
+      case 'StudentAttendanceView':
+        return (
+          <div className="attendance-view-container">
+            <h2>Attendance View</h2>
+            <div className="attendance-list">
+              <ul>
+                {students.map(student => (
+                  <li key={student._id}>
+                    <p><strong>{student.studentName}</strong></p>
+                    <p>Grade: {student.grade}</p>
+                    <p>Phone Number: {student.phoneNumber}</p>
+                    <p>Attendance Count: {student.attendanceCount}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        );
       default:
         return null;
     }
   };
 
   return (
-    <div className="animation">
-      <div className="settings-layout">
-        <div className="sidebar">
-          <h2 className="dashboard-title">Dashboard</h2>
-          <ul>
-            <li onClick={() => setSelectedSection('StudentRegistration')}>
-              Student Registration
-            </li>
-            <li onClick={() => setSelectedSection('StudentAttendanceMark')}>
-              Student Attendance Mark
-            </li>
-            <li onClick={() => setSelectedSection('StudentAttendanceView')}>
-              Student Attendance View
-            </li>
-          </ul>
-          <button className="btn-back" onClick={() => navigate('/login')}>
-            Back
-          </button>
-        </div>
-        <div className="content">{renderContent()}</div>
+    <div className="dashboard-ui">
+      <div className="sidebar">
+        <h2>Dashboard</h2>
+        <ul>
+          <li
+            className={selectedSection === 'StudentRegistration' ? 'active' : ''}
+            onClick={() => setSelectedSection('StudentRegistration')}
+          >
+            Student Registration
+          </li>
+          <li
+            className={selectedSection === 'StudentAttendanceMark' ? 'active' : ''}
+            onClick={() => setSelectedSection('StudentAttendanceMark')}
+          >
+            Mark Attendance
+          </li>
+          <li
+            className={selectedSection === 'StudentAttendanceView' ? 'active' : ''}
+            onClick={() => setSelectedSection('StudentAttendanceView')}
+          >
+            View Attendance
+          </li>
+          <li onClick={() => navigate('/login')}>Logout</li>
+        </ul>
       </div>
-      <MessageModal
-        show={showMessage}
-        message={message}
-        onClose={() => setShowMessage(false)}
-        type={messageType}
-      />
-    </div>
-  );
-};
-
-// Modal Component for displaying messages
-const MessageModal = ({ show, message, onClose, type }) => {
-  if (!show) return null;
-
-  return (
-    <div className={`modal ${type}`}>
-      <div className="modal-content">
-        <p>{message}</p>
-        <button onClick={onClose} className="btn-close">Close</button>
+      <div className="main-content">
+        {showMessage && (
+          <div className={`message ${messageType}`}>
+            {message}
+            <button onClick={() => setShowMessage(false)}>Close</button>
+          </div>
+        )}
+        {renderContent()}
       </div>
     </div>
   );
