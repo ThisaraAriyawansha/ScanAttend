@@ -1,83 +1,99 @@
-import React from 'react';
-import { Link, Routes, Route } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import './DashboardUI.css'; // Import your CSS file
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // For navigation
+import './DashboardUI.css';
 
 const DashboardUI = () => {
-  return (
-    <div className="dashboard">
-      {/* Sidebar */}
-      <motion.div 
-        className="sidebar" 
-        initial={{ x: -200 }} 
-        animate={{ x: 0 }} 
-        transition={{ duration: 0.5 }}
-      >
-        <div className="logo">Dashboard</div>
-        <ul className="sidebar-nav">
-          <li><Link to="/register">Register Student</Link></li>
-          <li><Link to="/view">View Students</Link></li>
-          <li><Link to="/qr">QR Code</Link></li>
-        </ul>
-      </motion.div>
+  const [selectedSection, setSelectedSection] = useState('StudentRegistration');
+  const navigate = useNavigate(); // Hook for navigation
 
-      {/* Main Content */}
-      <div className="main-content">
-        <Routes>
-          <Route path="/register" element={<RegisterStudent />} />
-          <Route path="/view" element={<ViewStudents />} />
-          <Route path="/qr" element={<QRCode />} />
-        </Routes>
-      </div>
-    </div>
-  );
-};  
-
-// Register Student component
-const RegisterStudent = () => {
-  const handleRegister = (event) => {
-    event.preventDefault();
-    // Handle student registration logic
+  const renderContent = () => {
+    switch (selectedSection) {
+      case 'StudentRegistration':
+        return (
+          <div>
+            <h2>Student Registration</h2>
+            <form>
+              <label>
+                Student Name:
+                <input type="text" />
+              </label>
+              <label>
+                Roll Number:
+                <input type="text" />
+              </label>
+              <label>
+                Class:
+                <input type="text" />
+              </label>
+              <button type="submit">Register</button>
+            </form>
+          </div>
+        );
+      case 'StudentAttendanceMark':
+        return (
+          <div>
+            <h2>Student Attendance Mark</h2>
+            <form>
+              <label>
+                Roll Number:
+                <input type="text" />
+              </label>
+              <label>
+                Date:
+                <input type="date" />
+              </label>
+              <label>
+                Attendance:
+                <select>
+                  <option value="Present">Present</option>
+                  <option value="Absent">Absent</option>
+                </select>
+              </label>
+              <button type="submit">Mark Attendance</button>
+            </form>
+          </div>
+        );
+      case 'StudentAttendanceView':
+        return (
+          <div>
+            <h2>Student Attendance View</h2>
+            <form>
+              <label>
+                Roll Number:
+                <input type="text" />
+              </label>
+              <label>
+                Date Range:
+                <input type="date" />
+                to
+                <input type="date" />
+              </label>
+              <button type="submit">View Attendance</button>
+            </form>
+          </div>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
-    <div className="register-student">
-      <h2>Register Student</h2>
-      <form onSubmit={handleRegister}>
-        <div>
-          <label>Name:</label>
-          <input type="text" name="name" required />
+    <div className='animation'>
+      <div className="settings-layout">
+        <div className="sidebar">
+          <h2 className="dashboard-title">Dashboard</h2>
+          <br></br>
+          <ul>
+            <li onClick={() => setSelectedSection('StudentRegistration')}>Student Registration</li>
+            <li onClick={() => setSelectedSection('StudentAttendanceMark')}>Student Attendance Mark</li>
+            <li onClick={() => setSelectedSection('StudentAttendanceView')}>Student Attendance View</li>
+          </ul>
+          <button className="btn-back" onClick={() => navigate('/login')}>Back</button>
         </div>
-        <div>
-          <label>Age:</label>
-          <input type="number" name="age" required />
+        <div className="content">
+          {renderContent()}
         </div>
-        <div>
-          <label>Class:</label>
-          <input type="text" name="class" required />
-        </div>
-        <button type="submit">Register</button>
-      </form>
-    </div>
-  );
-};
-
-// View Students component
-const ViewStudents = () => {
-  return (
-    <div className="view-students">
-      <h2>View Students</h2>
-      {/* Add logic to fetch and display students */}
-    </div>
-  );
-};
-
-// QR Code component
-const QRCode = () => {
-  return (
-    <div className="qr-code">
-      <h2>QR Code</h2>
-      {/* Add logic to handle QR Code functionality */}
+      </div>
     </div>
   );
 };
