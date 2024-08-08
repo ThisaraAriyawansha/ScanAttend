@@ -31,7 +31,7 @@ const DashboardUI = () => {
       </div>
     </div>
   );
-};
+};  
 
 // Register Student component
 const RegisterStudent = () => {
