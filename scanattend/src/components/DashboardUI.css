@@ -268,18 +268,15 @@ input[type="file"] {
 
 
 .qr-reader-container {
-  position: relative;
-  width: 100%;
-  max-width: 400px; /* Adjust the max-width as needed */
-  margin: 0 auto;
-  border: 2px solid #007aff; /* Border color */
-  border-radius: 10px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for modern look */
-  overflow: hidden;
+  width: 300px; /* Adjust width */
+  height: 300px; /* Adjust height */
+  border: 1px solid black; /* Optional: Add border for better visibility */
 }
 
 .qr-reader-container .qr-reader {
-  width: 100%;
+  width: 300px; /* Adjust width */
+  height: 300px; /* Adjust height */
+  border: 1px solid black; /* Optional: Add border for better visibility */
   height: auto; /* Maintain aspect ratio */
 }
 

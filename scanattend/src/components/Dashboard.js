@@ -14,7 +14,6 @@ const DashboardUI = () => {
   const [profilePic, setProfilePic] = useState('https://via.placeholder.com/100');
   const [qrCodeData, setQrCodeData] = useState(null);
   const [students, setStudents] = useState([]);
-  const [scanning, setScanning] = useState(false); // State to handle QR scanning
   const qrRef = useRef(null);
 
   const [showMessage, setShowMessage] = useState(false);
@@ -23,13 +22,18 @@ const DashboardUI = () => {
 
   const navigate = useNavigate();
 
+  const [scannedStudent, setScannedStudent] = useState(null); // State to store the scanned student
+  const [scanning, setScanning] = useState(false); // State to handle QR scanning
+
+
   useEffect(() => {
     if (selectedSection === 'StudentAttendanceView') {
-      fetchStudents();
+      fetchStudents(); // Assuming this is already in your code
     } else if (selectedSection === 'StudentAttendanceMark') {
       setScanning(true); // Start scanning when this section is selected
     }
   }, [selectedSection]);
+  
 
   const fetchStudents = async () => {
     try {
@@ -126,38 +130,48 @@ const DashboardUI = () => {
       console.log('Scanned Data:', data); // Log the scanned data for debugging
       setScanning(false);
   
-      try {
-        // If data is a JSON string or requires parsing, adjust this accordingly
-        const student = students.find(s => s.studentName === data);
-        if (student) {
-          const response = await fetch(`http://localhost:5000/api/students/${student._id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ attendanceCount: student.attendanceCount + 1 }),
-          });
-  
-          if (response.ok) {
-            setMessage('Attendance marked successfully');
-            setMessageType('success');
-          } else {
-            setMessage('Failed to mark attendance. Please try again.');
-            setMessageType('error');
-          }
-        } else {
-          setMessage('Student not found.');
-          setMessageType('error');
-        }
-      } catch (err) {
-        console.error('Error:', err);
-        setMessage('An error occurred. Please try again later.');
+      const student = students.find(s => s.studentName === data);
+      if (student) {
+        setScannedStudent(student); // Set the scanned student data
+        setMessage('');
+      } else {
+        setScannedStudent(null);
+        setMessage('Student not found.');
         setMessageType('error');
-      } finally {
         setShowMessage(true);
       }
     }
   };
+  
+  const handleMarkAttendance = async () => {
+    if (!scannedStudent) return;
+  
+    try {
+      const response = await fetch(`http://localhost:5000/api/students/${scannedStudent._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ attendanceCount: scannedStudent.attendanceCount + 1 }),
+      });
+  
+      if (response.ok) {
+        setMessage('Attendance marked successfully');
+        setMessageType('success');
+        setScannedStudent(null);
+      } else {
+        setMessage('Failed to mark attendance. Please try again.');
+        setMessageType('error');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setMessage('An error occurred. Please try again later.');
+      setMessageType('error');
+    } finally {
+      setShowMessage(true);
+    }
+  };
+  
   
 
   
@@ -279,21 +293,30 @@ const DashboardUI = () => {
         );
 
         case 'StudentAttendanceMark':
-          return (
-            <div className="attendance-mark">
-              <h2>Mark Attendance</h2>
-              {scanning && (
-                <div className="qr-reader-container">
-                  <QrReader
-                    delay={300}
-                    onScan={handleScan}
-                    onError={handleError}
-                    className="qr-reader" // Add this class for additional styling if needed
-                  />
-                </div>
-              )}
-            </div>
-          );
+  return (
+    <div className="attendance-mark">
+      <h2>Mark Attendance</h2>
+      <div className="qr-reader-container">
+       <QrReader
+          onResult={handleScan}
+          onError={handleError}
+          style={{ width: '300px', height: '300px', border: '1px solid black' }} // Adjust width, height, and border as needed
+        />
+</div>
+
+      {scannedStudent ? (
+        <div className="scanned-student">
+          <h3>Student Name: {scannedStudent.studentName}</h3>
+          <button className="btn-save" onClick={handleMarkAttendance}>
+            Mark Attendance
+          </button>
+        </div>
+      ) : (
+        <p>Scanning for student QR code...</p>
+      )}
+    </div>
+  );
+
         
 
       default:
