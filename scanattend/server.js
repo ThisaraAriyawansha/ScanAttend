@@ -110,22 +110,51 @@ app.post('/api/students/register', async (req, res) => {
 });
 
 
-// Update student's attendance count
-app.put('/api/students/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { attendanceCount } = req.body;
+// Route to update attendance count based on student name
+app.put('/api/students/attendance', async (req, res) => {
+  const { studentName } = req.body;
 
-    const student = await Student.findByIdAndUpdate(id, { attendanceCount }, { new: true });
-    if (!student) {
-      return res.status(404).send('Student not found');
-    }
-    res.status(200).send('Attendance updated successfully');
-  } catch (err) {
-    res.status(500).send('Error updating attendance');
+  try {
+      const student = await Student.findOne({ studentName });
+
+      if (student) {
+          student.attendanceCount += 1;
+          await student.save();
+          res.status(200).send('Attendance updated successfully');
+      } else {
+          res.status(404).send('Student not found');
+      }
+  } catch (error) {
+      res.status(500).send('Failed to update attendance');
   }
 });
 
+
+
+// Endpoint to get all students
+app.get('/api/students', async (req, res) => {
+  try {
+    const students = await Student.find();
+    res.json(students);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Endpoint to add a new student (for testing)
+app.post('/api/students', async (req, res) => {
+  const student = new Student({
+    studentName: req.body.studentName,
+    attendanceCount: req.body.attendanceCount,
+  });
+
+  try {
+    const newStudent = await student.save();
+    res.status(201).json(newStudent);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
 
 
 

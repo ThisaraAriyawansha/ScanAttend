@@ -28,9 +28,11 @@ const DashboardUI = () => {
     if (selectedSection === 'StudentAttendanceView') {
       fetchStudents();
     } else if (selectedSection === 'StudentAttendanceMark') {
+      fetchStudents();  // Fetch students before starting the scan
       setScanning(true); // Start scanning when this section is selected
     }
   }, [selectedSection]);
+  
 
   const fetchStudents = async () => {
     try {
@@ -121,14 +123,24 @@ const DashboardUI = () => {
       reader.readAsDataURL(file);
     }
   };
-
+  const handleError = (error) => {
+    if (error) {
+      console.error('Scanning error:', error);
+      setMessage('An error occurred while scanning. Please try again later.');
+    } else {
+      console.error('Scanning error: undefined error');
+      setMessage('An unknown error occurred. Please try again later.');
+    }
+    setMessageType('error');
+    setShowMessage(true);
+  };
+  
   const handleScan = async (data) => {
     if (data) {
-      console.log('Scanned Data:', data); // Log the scanned data for debugging
+      console.log('Scanned Data:', data);
       setScanning(false);
-  
+      
       try {
-        // If data is a JSON string or requires parsing, adjust this accordingly
         const student = students.find(s => s.studentName === data);
         if (student) {
           const response = await fetch(`http://localhost:5000/api/students/${student._id}`, {
@@ -142,7 +154,9 @@ const DashboardUI = () => {
           if (response.ok) {
             setMessage('Attendance marked successfully');
             setMessageType('success');
+            fetchStudents(); // Refresh the students list
           } else {
+            console.error('Failed response from server:', response.status, response.statusText);
             setMessage('Failed to mark attendance. Please try again.');
             setMessageType('error');
           }
@@ -151,7 +165,7 @@ const DashboardUI = () => {
           setMessageType('error');
         }
       } catch (err) {
-        console.error('Error:', err);
+        console.error('Error during scan processing:', err);
         setMessage('An error occurred. Please try again later.');
         setMessageType('error');
       } finally {
@@ -160,15 +174,7 @@ const DashboardUI = () => {
     }
   };
   
-
   
- 
-  const handleError = (error) => {
-    console.error('Error:', error);
-    setMessage('An error occurred. Please try again later.');
-    setMessageType('error');
-    setShowMessage(true);
-  };
   
 
   const renderContent = () => {
@@ -256,45 +262,58 @@ const DashboardUI = () => {
           </div>
         );
 
-      case 'StudentAttendanceView':
-        return (
-          <div className="attendance-view">
-            <h2>Student Attendance View</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Student Name</th>
-                  <th>Attendance Count</th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.map((student) => (
-                  <tr key={student._id}>
-                    <td>{student.studentName}</td>
-                    <td>{student.attendanceCount}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        );
-
-        case 'StudentAttendanceMark':
+        case 'StudentAttendanceView':
           return (
-            <div className="attendance-mark">
-              <h2>Mark Attendance</h2>
-              {scanning && (
-                <div className="qr-reader-container">
-                  <QrReader
-                    delay={300}
-                    onScan={handleScan}
-                    onError={handleError}
-                    className="qr-reader" // Add this class for additional styling if needed
-                  />
-                </div>
-              )}
+            <div className="attendance-view">
+              <h2>Student Attendance View</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Student Name</th>
+                    <th>Attendance Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map((student) => (
+                    <tr key={student._id}>
+                      <td>{student.studentName}</td>
+                      <td>{student.attendanceCount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           );
+        
+
+          case 'StudentAttendanceMark':
+            return (
+              <div className="attendance-mark">
+                <h2>Mark Attendance</h2>
+                {scanning && (
+                  <div className="qr-reader-container">
+            <QrReader
+              delay={300}
+              onResult={(result, error) => {
+                console.log('QR Reader result:', result);
+                console.log('QR Reader error:', error);
+                if (result) {
+                  handleScan(result?.text);
+                }
+                if (error) {
+                  handleError(error);
+                }
+              }}
+              style={{ width: '100%' }}
+            />
+
+
+
+                  </div>
+                )}
+              </div>
+            );
+          
         
 
       default:
