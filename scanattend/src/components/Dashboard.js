@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import QRCode from 'qrcode.react';
-import { QrReader } from 'react-qr-reader';
+import { QrReader } from 'react-qr-reader';  // Import the QrReader component
 import './DashboardUI.css';
 
 const DashboardUI = () => {
@@ -14,7 +14,7 @@ const DashboardUI = () => {
   const [profilePic, setProfilePic] = useState('https://via.placeholder.com/100');
   const [qrCodeData, setQrCodeData] = useState(null);
   const [students, setStudents] = useState([]);
-  const [scanning, setScanning] = useState(false);
+  const [scanning, setScanning] = useState(false); // State to handle QR scanning
   const qrRef = useRef(null);
 
   const [showMessage, setShowMessage] = useState(false);
@@ -27,7 +27,7 @@ const DashboardUI = () => {
     if (selectedSection === 'StudentAttendanceView') {
       fetchStudents();
     } else if (selectedSection === 'StudentAttendanceMark') {
-      setScanning(true);
+      setScanning(true); // Start scanning when this section is selected
     }
   }, [selectedSection]);
 
@@ -46,7 +46,7 @@ const DashboardUI = () => {
   };
 
   const handleGenerateQR = () => {
-    setQrCodeData(studentName);
+    setQrCodeData(studentName); // Use only the student's full name for QR code
   };
 
   const handleDownloadQR = () => {
@@ -92,7 +92,7 @@ const DashboardUI = () => {
         setMessageType('error');
       }
     } catch (err) {
-      console.error('Error:', err);
+      console.error(err);
       setMessage('An error occurred. Please try again later.');
       setMessageType('error');
     } finally {
@@ -123,9 +123,11 @@ const DashboardUI = () => {
 
   const handleScan = async (data) => {
     if (data) {
+      console.log('Scanned Data:', data); // Log the scanned data for debugging
       setScanning(false);
-      console.log('Scanned Data:', data); // Log the scanned data
+  
       try {
+        // If data is a JSON string or requires parsing, adjust this accordingly
         const student = students.find(s => s.studentName === data);
         if (student) {
           const response = await fetch(`http://localhost:5000/api/students/${student._id}`, {
@@ -135,7 +137,7 @@ const DashboardUI = () => {
             },
             body: JSON.stringify({ attendanceCount: student.attendanceCount + 1 }),
           });
-
+  
           if (response.ok) {
             setMessage('Attendance marked successfully');
             setMessageType('success');
@@ -156,13 +158,17 @@ const DashboardUI = () => {
       }
     }
   };
+  
 
+  
+ 
   const handleError = (error) => {
     console.error('Error:', error);
     setMessage('An error occurred. Please try again later.');
     setMessageType('error');
     setShowMessage(true);
   };
+  
 
   const renderContent = () => {
     switch (selectedSection) {
@@ -248,76 +254,94 @@ const DashboardUI = () => {
             </div>
           </div>
         );
-      case 'StudentAttendanceMark':
-        return (
-          <div className="attendance-marking-container">
-            {scanning && (
-              <QrReader
-                onScan={handleScan}
-                onError={handleError}
-                style={{ width: '100%' }}
-                facingMode="environment"
-              />
-            )}
-          </div>
-        );
+
       case 'StudentAttendanceView':
         return (
-          <div className="attendance-view-container">
-            <h2>Attendance View</h2>
-            <div className="attendance-list">
-              <ul>
-                {students.map(student => (
-                  <li key={student._id}>
-                    <p><strong>{student.studentName}</strong></p>
-                    <p>Grade: {student.grade}</p>
-                    <p>Phone Number: {student.phoneNumber}</p>
-                    <p>Attendance Count: {student.attendanceCount}</p>
-                  </li>
+          <div className="attendance-view">
+            <h2>Student Attendance View</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Attendance Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                {students.map((student) => (
+                  <tr key={student._id}>
+                    <td>{student.studentName}</td>
+                    <td>{student.attendanceCount}</td>
+                  </tr>
                 ))}
-              </ul>
-            </div>
+              </tbody>
+            </table>
           </div>
         );
+
+        case 'StudentAttendanceMark':
+          return (
+            <div className="attendance-mark">
+              <h2>Mark Attendance</h2>
+              {scanning && (
+                <div className="qr-reader-container">
+                  <QrReader
+                    delay={300}
+                    onScan={handleScan}
+                    onError={handleError}
+                    className="qr-reader" // Add this class for additional styling if needed
+                  />
+                </div>
+              )}
+            </div>
+          );
+        
+
       default:
         return null;
     }
   };
 
   return (
-    <div className="dashboard-ui">
-      <div className="sidebar">
-        <h2>Dashboard</h2>
-        <ul>
-          <li
-            className={selectedSection === 'StudentRegistration' ? 'active' : ''}
-            onClick={() => setSelectedSection('StudentRegistration')}
-          >
-            Student Registration
-          </li>
-          <li
-            className={selectedSection === 'StudentAttendanceMark' ? 'active' : ''}
-            onClick={() => setSelectedSection('StudentAttendanceMark')}
-          >
-            Mark Attendance
-          </li>
-          <li
-            className={selectedSection === 'StudentAttendanceView' ? 'active' : ''}
-            onClick={() => setSelectedSection('StudentAttendanceView')}
-          >
-            View Attendance
-          </li>
-          <li onClick={() => navigate('/login')}>Logout</li>
-        </ul>
+    <div className="animation">
+      <div className="settings-layout">
+        <div className="sidebar">
+          <h2 className="dashboard-title">Dashboard</h2>
+          <ul>
+            <li onClick={() => setSelectedSection('StudentRegistration')}>
+              Student Registration
+            </li>
+            <li onClick={() => setSelectedSection('StudentAttendanceMark')}>
+            Mark Attendance 
+            </li>
+            <li onClick={() => setSelectedSection('StudentAttendanceView')}>
+            View Attendance 
+            </li>
+          </ul>
+          <button className="btn-back" onClick={() => navigate('/login')}>
+            Logout
+          </button>
+        </div>
+        <div className="content">{renderContent()}</div>
       </div>
-      <div className="main-content">
-        {showMessage && (
-          <div className={`message ${messageType}`}>
-            {message}
-            <button onClick={() => setShowMessage(false)}>Close</button>
-          </div>
-        )}
-        {renderContent()}
+      <MessageModal
+        show={showMessage}
+        message={message}
+        onClose={() => setShowMessage(false)}
+        type={messageType}
+      />
+    </div>
+  );
+};
+
+// Modal Component for displaying messages
+const MessageModal = ({ show, message, onClose, type }) => {
+  if (!show) return null;
+
+  return (
+    <div className={`modal ${type}`}>
+      <div className="modal-content">
+        <p>{message}</p>
+        <button onClick={onClose} className="btn-close">Close</button>
       </div>
     </div>
   );
