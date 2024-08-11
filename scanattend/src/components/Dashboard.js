@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import QRCode from 'qrcode.react';
-import { QrReader } from 'react-qr-reader';  // Import the QrReader component
+import QrScanner from 'react-qr-scanner';
 import './DashboardUI.css';
+
 
 const DashboardUI = () => {
   const [selectedSection, setSelectedSection] = useState('StudentRegistration');
@@ -22,7 +23,6 @@ const DashboardUI = () => {
   const [messageType, setMessageType] = useState('');
 
   const navigate = useNavigate();
-  
 
   useEffect(() => {
     if (selectedSection === 'StudentAttendanceView') {
@@ -32,7 +32,6 @@ const DashboardUI = () => {
       setScanning(true); // Start scanning when this section is selected
     }
   }, [selectedSection]);
-  
 
   const fetchStudents = async () => {
     try {
@@ -123,6 +122,7 @@ const DashboardUI = () => {
       reader.readAsDataURL(file);
     }
   };
+
   const handleError = (error) => {
     if (error) {
       console.error('Scanning error:', error);
@@ -134,12 +134,12 @@ const DashboardUI = () => {
     setMessageType('error');
     setShowMessage(true);
   };
-  
+
   const handleScan = async (data) => {
     if (data) {
       console.log('Scanned Data:', data);
       setScanning(false);
-      
+
       try {
         const student = students.find(s => s.studentName === data);
         if (student) {
@@ -150,7 +150,7 @@ const DashboardUI = () => {
             },
             body: JSON.stringify({ attendanceCount: student.attendanceCount + 1 }),
           });
-  
+
           if (response.ok) {
             setMessage('Attendance marked successfully');
             setMessageType('success');
@@ -173,9 +173,6 @@ const DashboardUI = () => {
       }
     }
   };
-  
-  
-  
 
   const renderContent = () => {
     switch (selectedSection) {
@@ -262,59 +259,44 @@ const DashboardUI = () => {
           </div>
         );
 
-        case 'StudentAttendanceView':
-          return (
-            <div className="attendance-view">
-              <h2>Student Attendance View</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Student Name</th>
-                    <th>Attendance Count</th>
+      case 'StudentAttendanceView':
+        return (
+          <div className="attendance-view">
+            <h2>Student Attendance View</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Attendance Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                {students.map((student) => (
+                  <tr key={student._id}>
+                    <td>{student.studentName}</td>
+                    <td>{student.attendanceCount}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {students.map((student) => (
-                    <tr key={student._id}>
-                      <td>{student.studentName}</td>
-                      <td>{student.attendanceCount}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          );
-        
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
 
-          case 'StudentAttendanceMark':
-            return (
-              <div className="attendance-mark">
-                <h2>Mark Attendance</h2>
-                {scanning && (
-                  <div className="qr-reader-container">
-            <QrReader
-              delay={300}
-              onResult={(result, error) => {
-                console.log('QR Reader result:', result);
-                console.log('QR Reader error:', error);
-                if (result) {
-                  handleScan(result?.text);
-                }
-                if (error) {
-                  handleError(error);
-                }
-              }}
-              style={{ width: '100%' }}
-            />
-
-
-
-                  </div>
-                )}
+      case 'StudentAttendanceMark':
+        return (
+          <div className="attendance-mark">
+            <h2>Mark Attendance</h2>
+            {scanning && (
+              <div className="qr-reader-container">
+                <QrScanner
+                  delay={300}
+                  onError={handleError}
+                  onScan={handleScan}
+                />
               </div>
-            );
-          
-        
+            )}
+          </div>
+        );
 
       default:
         return null;
@@ -331,10 +313,10 @@ const DashboardUI = () => {
               Student Registration
             </li>
             <li onClick={() => setSelectedSection('StudentAttendanceMark')}>
-            Mark Attendance 
+              Mark Attendance
             </li>
             <li onClick={() => setSelectedSection('StudentAttendanceView')}>
-            View Attendance 
+              View Attendance
             </li>
           </ul>
           <button className="btn-back" onClick={() => navigate('/login')}>
@@ -353,15 +335,14 @@ const DashboardUI = () => {
   );
 };
 
-// Modal Component for displaying messages
+// MessageModal component
 const MessageModal = ({ show, message, onClose, type }) => {
   if (!show) return null;
-
   return (
     <div className={`modal ${type}`}>
       <div className="modal-content">
+        <span className="close" onClick={onClose}>&times;</span>
         <p>{message}</p>
-        <button onClick={onClose} className="btn-close">Close</button>
       </div>
     </div>
   );
