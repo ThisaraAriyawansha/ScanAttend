@@ -137,11 +137,12 @@ const DashboardUI = () => {
 
   const handleScan = async (data) => {
     if (data) {
-      console.log('Scanned Data:', data);
+      const scannedText = data.text.trim(); // Access the 'text' property and trim it
+      console.log('Scanned Data:', scannedText);
       setScanning(false);
-
+  
       try {
-        const student = students.find(s => s.studentName === data);
+        const student = students.find(s => s.studentName === scannedText);
         if (student) {
           const response = await fetch(`http://localhost:5000/api/students/${student._id}`, {
             method: 'PUT',
@@ -150,7 +151,7 @@ const DashboardUI = () => {
             },
             body: JSON.stringify({ attendanceCount: student.attendanceCount + 1 }),
           });
-
+  
           if (response.ok) {
             setMessage('Attendance marked successfully');
             setMessageType('success');
@@ -173,6 +174,8 @@ const DashboardUI = () => {
       }
     }
   };
+  
+  
 
   const renderContent = () => {
     switch (selectedSection) {
